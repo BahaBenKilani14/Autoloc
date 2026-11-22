@@ -1,18 +1,26 @@
 package tn.esprit.autoloc.autoloc_api.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tn.esprit.autoloc.autoloc_api.domain.Equipement;
 import tn.esprit.autoloc.autoloc_api.domain.Vehicule;
 import tn.esprit.autoloc.autoloc_api.exception.ResourceNotFoundException;
+import tn.esprit.autoloc.autoloc_api.repository.IEquipementRepository;
 import tn.esprit.autoloc.autoloc_api.repository.IVehiculeRepository;
+import tn.esprit.autoloc.autoloc_api.web.dto.AffectationEquipementRequest;
+import tn.esprit.autoloc.autoloc_api.web.dto.VehiculeEquipementResponseDTO;
 
 @Service
 @RequiredArgsConstructor
 public class VehiculeServiceImpl implements IVehiculeService {
 
     private final IVehiculeRepository vehiculeRepository;
+    private final IEquipementRepository equipementRepository;
 
     @Override
     public Vehicule create(Vehicule vehicule) {
@@ -54,6 +62,38 @@ public class VehiculeServiceImpl implements IVehiculeService {
             throw new ResourceNotFoundException("Vehicule", id);
         }
         vehiculeRepository.deleteById(id);
+    }
+
+    @Override
+    public VehiculeEquipementResponseDTO affecterEquipementAVehicule(AffectationEquipementRequest request) {
+        Vehicule vehicule = vehiculeRepository.findById(request.getIdVehicule())
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", request.getIdVehicule()));
+
+        Equipement equipement = equipementRepository.findById(request.getIdEquipement())
+                .orElseThrow(() -> new ResourceNotFoundException("Equipement", request.getIdEquipement()));
+
+        if (vehicule.getEquipements() == null) {
+            vehicule.setEquipements(new ArrayList<>());
+        }
+        if (!vehicule.getEquipements().contains(equipement)) {
+            vehicule.getEquipements().add(equipement);
+        }
+
+        Vehicule saved = vehiculeRepository.save(vehicule);
+
+        Set<String> nomsEquipements = saved.getEquipements() == null
+                ? Set.of()
+                : saved.getEquipements().stream()
+                  .map(Equipement::getNom)
+                  .collect(Collectors.toSet());
+
+        return new VehiculeEquipementResponseDTO(
+                saved.getIdVehicule(),
+                saved.getImmatriculation(),
+                saved.getMarque(),
+                saved.getModele(),
+                nomsEquipements
+        );
     }
 
     private void verifier(Vehicule vehicule) {

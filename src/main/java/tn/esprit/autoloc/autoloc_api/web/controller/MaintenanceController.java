@@ -1,13 +1,14 @@
 package tn.esprit.autoloc.autoloc_api.web.controller;
 
+import jakarta.validation.Valid;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import lombok.RequiredArgsConstructor;
 import tn.esprit.autoloc.autoloc_api.domain.Maintenance;
 import tn.esprit.autoloc.autoloc_api.service.IMaintenanceService;
+import tn.esprit.autoloc.autoloc_api.web.dto.AffectationMaintenanceRequest;
+import tn.esprit.autoloc.autoloc_api.web.dto.MaintenanceResponseDTO;
 
 @RestController
 @RequestMapping("/maintenances")
@@ -30,6 +31,13 @@ public class MaintenanceController {
     @ResponseStatus(HttpStatus.CREATED)
     public Maintenance create(@RequestBody Maintenance maintenance) {
         return maintenanceService.create(maintenance);
+    }
+
+    @PostMapping("/affectation")
+    @ResponseStatus(HttpStatus.CREATED)
+    public MaintenanceResponseDTO affecterMaintenanceAVehicule(
+            @Valid @RequestBody AffectationMaintenanceRequest request) {
+        return maintenanceService.affecterMaintenanceAVehicule(request);
     }
 
     @PutMapping("/{id}")

@@ -1,13 +1,14 @@
 package tn.esprit.autoloc.autoloc_api.web.controller;
 
+import jakarta.validation.Valid;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import lombok.RequiredArgsConstructor;
 import tn.esprit.autoloc.autoloc_api.domain.Vehicule;
 import tn.esprit.autoloc.autoloc_api.service.IVehiculeService;
+import tn.esprit.autoloc.autoloc_api.web.dto.AffectationEquipementRequest;
+import tn.esprit.autoloc.autoloc_api.web.dto.VehiculeEquipementResponseDTO;
 
 @RestController
 @RequestMapping("/vehicules")
@@ -30,6 +31,13 @@ public class VehiculeController {
     @ResponseStatus(HttpStatus.CREATED)
     public Vehicule create(@RequestBody Vehicule vehicule) {
         return vehiculeService.create(vehicule);
+    }
+
+    @PostMapping("/affectation-equipement")
+    @ResponseStatus(HttpStatus.CREATED)
+    public VehiculeEquipementResponseDTO affecterEquipementAVehicule(
+            @Valid @RequestBody AffectationEquipementRequest request) {
+        return vehiculeService.affecterEquipementAVehicule(request);
     }
 
     @PutMapping("/{id}")
