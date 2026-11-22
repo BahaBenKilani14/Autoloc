@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.autoloc.autoloc_api.domain.Maintenance;
 import tn.esprit.autoloc.autoloc_api.domain.Vehicule;
 import tn.esprit.autoloc.autoloc_api.exception.ResourceNotFoundException;
@@ -79,6 +80,15 @@ public class MaintenanceServiceImpl implements IMaintenanceService {
                 vehicule.getIdVehicule(),
                 vehicule.getImmatriculation()
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Maintenance> findMaintenancesByVehiculeId(Long idVehicule) {
+        if (!vehiculeRepository.existsById(idVehicule)) {
+            throw new ResourceNotFoundException("Vehicule", idVehicule);
+        }
+        return maintenanceRepository.findByVehicule_IdVehicule(idVehicule);
     }
 
     private void verifier(Maintenance maintenance) {

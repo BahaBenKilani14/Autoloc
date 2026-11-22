@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.autoloc.autoloc_api.domain.Equipement;
 import tn.esprit.autoloc.autoloc_api.domain.Vehicule;
 import tn.esprit.autoloc.autoloc_api.exception.ResourceNotFoundException;
@@ -94,6 +95,24 @@ public class VehiculeServiceImpl implements IVehiculeService {
                 saved.getModele(),
                 nomsEquipements
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Vehicule> findVehiculesByContratId(Long idContrat) {
+        return vehiculeRepository.findAll().stream()
+                .filter(v -> v.getReservations() != null && v.getReservations().stream()
+                        .anyMatch(r -> r.getContrat() != null && idContrat.equals(r.getContrat().getIdContrat())))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Vehicule> findVehiculesByMaintenanceId(Long idMaintenance) {
+        return vehiculeRepository.findAll().stream()
+                .filter(v -> v.getMaintenances() != null && v.getMaintenances().stream()
+                        .anyMatch(m -> idMaintenance.equals(m.getIdMaintenance())))
+                .toList();
     }
 
     private void verifier(Vehicule vehicule) {

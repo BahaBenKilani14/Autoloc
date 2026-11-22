@@ -27,6 +27,16 @@ public class VehiculeController {
         return vehiculeService.findById(id);
     }
 
+    @GetMapping("/par-contrat/{idContrat}")
+    public List<Vehicule> findVehiculesByContrat(@PathVariable Long idContrat) {
+        return vehiculeService.findVehiculesByContratId(idContrat);
+    }
+
+    @GetMapping("/par-maintenance/{idMaintenance}")
+    public List<Vehicule> findVehiculesByMaintenance(@PathVariable Long idMaintenance) {
+        return vehiculeService.findVehiculesByMaintenanceId(idMaintenance);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Vehicule create(@RequestBody Vehicule vehicule) {

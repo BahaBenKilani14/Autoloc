@@ -27,6 +27,11 @@ public class MaintenanceController {
         return maintenanceService.findById(id);
     }
 
+    @GetMapping("/par-vehicule/{idVehicule}")
+    public List<Maintenance> findMaintenancesByVehicule(@PathVariable Long idVehicule) {
+        return maintenanceService.findMaintenancesByVehiculeId(idVehicule);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Maintenance create(@RequestBody Maintenance maintenance) {

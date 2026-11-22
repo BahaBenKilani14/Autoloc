@@ -2,19 +2,25 @@ package tn.esprit.autoloc.autoloc_api.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import tn.esprit.autoloc.autoloc_api.domain.Contrat;
+import tn.esprit.autoloc.autoloc_api.domain.Reservation;
+import tn.esprit.autoloc.autoloc_api.domain.Vehicule;
 import tn.esprit.autoloc.autoloc_api.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.autoloc_api.repository.IContratRepository;
+import tn.esprit.autoloc.autoloc_api.repository.IVehiculeRepository;
 
 @Service
 @RequiredArgsConstructor
 public class ContratServiceImpl implements IContratService {
 
     private final IContratRepository contratRepository;
+    private final IVehiculeRepository vehiculeRepository;
 
     @Override
     public Contrat create(Contrat contrat) {
@@ -43,7 +49,6 @@ public class ContratServiceImpl implements IContratService {
         existant.setDateSignature(contrat.getDateSignature());
         existant.setMontantTotal(contrat.getMontantTotal());
         existant.setValide(contrat.getValide());
-        // on ne touche pas à idContrat, reservation, paiements
         return contratRepository.save(existant);
     }
 
@@ -53,6 +58,23 @@ public class ContratServiceImpl implements IContratService {
             throw new ResourceNotFoundException("Contrat", id);
         }
         contratRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Contrat> findContratsByVehiculeId(Long idVehicule) {
+        Vehicule vehicule = vehiculeRepository.findById(idVehicule)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", idVehicule));
+
+        if (vehicule.getReservations() == null) {
+            return List.of();
+        }
+
+        return vehicule.getReservations().stream()
+                .map(Reservation::getContrat)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
     }
 
     private void verifier(Contrat contrat) {

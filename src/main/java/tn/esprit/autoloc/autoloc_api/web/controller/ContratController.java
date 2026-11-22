@@ -26,6 +26,11 @@ public class ContratController {
         return contratService.findById(id);
     }
 
+    @GetMapping("/par-vehicule/{idVehicule}")
+    public List<Contrat> findContratsByVehicule(@PathVariable Long idVehicule) {
+        return contratService.findContratsByVehiculeId(idVehicule);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Contrat create(@RequestBody Contrat contrat) {
